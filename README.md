@@ -2,7 +2,7 @@
 
 A browser-based tool that measures **Disproportionate Impact (DI)** across student subgroups using the official CCCCO **PPG-1 (Percentage Point Gap)** methodology.
 
-**Live site →** [https://di-calculator.vercel.app/](https://di-calculator.vercel.app/)
+**Live site →** [https://di-calculator.com/](https://di-calculator.com/)
 
 ---
 
@@ -118,7 +118,7 @@ Hosted on Vercel and connected to this repository. Every push to the `main`
 branch deploys automatically to production; pushes to other branches create
 preview deployments.
 
-- **Production:** [di-calc.vercel.app](https://di-calc.vercel.app)
+- **Production:** [di-calculator.com](https://di-calculator.com)
 
 ---
 
