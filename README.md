@@ -112,4 +112,14 @@ npx serve -p 4200 .
 
 ---
 
+## Deployment
+
+Hosted on Vercel and connected to this repository. Every push to the `main`
+branch deploys automatically to production; pushes to other branches create
+preview deployments.
+
+- **Production:** [di-calc.vercel.app](https://di-calc.vercel.app)
+
+---
+
 Built by Courtney Youngberg
