@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equity Gap Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main class="page-shell">
+
+    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Student Equity Analytics</p>
+        <h1>Equity Gap Calculator</h1>
+        <p class="hero-text">
+          See which student groups are succeeding at lower rates than their peers — and by how much.
+          Uses the official CCCCO PPG-1 (Percentage Point Gap) methodology.
+        </p>
+      </div>
+      <div class="hero-mark">
+        <span class="hero-mark-text">PPG&#8209;1</span>
+      </div>
+    </section>
+
+    <!-- ── Methodology toggle ────────────────────────────────────────────── -->
+    <details class="info-details">
+      <summary class="info-summary">Methodology &amp; Resources <span class="info-chevron">▸</span></summary>
+      <section class="info-grid">
+        <article class="info-card">
+          <h2>How DI Is Flagged</h2>
+          <p><code>PPG-1 = subgroup rate − all other rate</code></p>
+          <p>For positive outcomes, disproportionate impact is flagged when <code>PPG-1 ≤ −E</code>.</p>
+          <p><code>E = max(1.96 × sqrt(p̂(1−p̂)/n), 2.0%)</code></p>
+        </article>
+        <article class="info-card">
+          <h2>Quick Notes</h2>
+          <ul class="note-list">
+            <li>Groups with <code>n ≤ 10</code> are marked as insufficient data.</li>
+            <li>Each analysis cell shows the all-other rate, margin of error, and gap-closing estimate.</li>
+            <li>Counts must follow <code>successes ≤ total count</code>.</li>
+          </ul>
+        </article>
+        <article class="info-card">
+          <h2>Official Resources</h2>
+          <div class="resource-links">
+            <a href="https://www.cccco.edu/-/media/CCCCO-Website/docs/data-resources/ccccopercentagepointgapminusoneppg1methodologynotes2022accessible20220414a11y.pdf" target="_blank" rel="noreferrer">CCCCO PPG-1 Methodology Notes</a>
+            <a href="https://www.cccco.edu/About-Us/Chancellors-Office/Divisions/Research-Analytics-Data/data-resources" target="_blank" rel="noreferrer">CCCCO Data Resources</a>
+          </div>
+        </article>
+        <article class="info-card">
+          <h2>Data Sources</h2>
+          <div class="resource-links">
+            <a href="https://app.powerbi.com/view?r=eyJrIjoiZGVlMTYwNjAtYjg0MS00ZGJhLTkyNjMtZjk5ZDIzMGMwZjYzIiwidCI6ImVlNTdmNTU1LTFkNzAtNGE4Yi04ZWRhLWMwZjQwNzFhNDQ1OCIsImMiOjZ9" target="_blank" rel="noreferrer">Course Success and Retention Rate</a>
+            <a href="https://app.powerbi.com/view?r=eyJrIjoiNDZkNWY5MzgtMjc3NC00YWVkLWEyMjUtODFmMzc3Mzg5NDkyIiwidCI6ImVlNTdmNTU1LTFkNzAtNGE4Yi04ZWRhLWMwZjQwNzFhNDQ1OCIsImMiOjZ9" target="_blank" rel="noreferrer">Student Persistence</a>
+            <a href="https://app.powerbi.com/view?r=eyJrIjoiMDU3YjYwYTItZDA4Mi00ZDJmLTgyMTgtYzk2NzNhYzA1YjczIiwidCI6ImVlNTdmNTU1LTFkNzAtNGE4Yi04ZWRhLWMwZjQwNzFhNDQ1OCIsImMiOjZ9" target="_blank" rel="noreferrer">Enrollments</a>
+          </div>
+        </article>
+      </section>
+    </details>
+
+    <!-- ── Toolbar: tabs + action buttons ───────────────────────────────── -->
+    <div class="toolbar">
+      <nav id="tabBar" class="tab-bar" role="tablist" aria-label="Demographic category"></nav>
+      <div class="action-bar">
+        <button id="btnImport" class="action-btn action-btn-primary" title="Import data from a file or paste from Excel">📥 Import Data</button>
+        <button id="btnExport" class="action-btn" title="Download results as Excel (.xlsx)">📤 Export Excel</button>
+        <button id="btnShare"  class="action-btn" title="Copy shareable link">🔗 Share</button>
+        <button id="btnPrint"  class="action-btn" title="Print this page">🖨 Print</button>
+        <button id="btnClear"  class="action-btn action-btn-danger" title="Clear all data for this tab">🗑 Clear</button>
+      </div>
+    </div>
+
+    <!-- ── Course filter bar (shown after raw import with a course column) ── -->
+    <div id="courseFilterBar" class="course-filter-bar hidden"></div>
+
+    <!-- ── Input + output tables ─────────────────────────────────────────── -->
+    <div class="table-container">
+
+      <!-- Outcome Counts -->
+      <div class="table-wrapper wrapper-outcome">
+        <div class="section-step">Step 1 — Enter Your Data</div>
+        <h2 id="titleOutcomeCounts">Students Who Succeeded</h2>
+        <h4 id="subtitleOutcomeCounts">How many students in each group passed, completed, or achieved the outcome?</h4>
+        <table id="numeratorTable">
+          <tr>
+            <th>Race/Ethnicity</th>
+            <th><input type="text" class="yearHeader" id="year-0" value="2020-21"></th>
+            <th><input type="text" class="yearHeader" id="year-1" value="2021-22" readonly></th>
+            <th><input type="text" class="yearHeader" id="year-2" value="2022-23" readonly></th>
+            <th><input type="text" class="yearHeader" id="year-3" value="2023-24" readonly></th>
+          </tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-0" value="Am Ind/Ntv Alsk"></td><td><input type="number" class="inputNumerator" id="inputNumerator-0-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-0-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-0-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-0-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-1" value="Asian"></td><td><input type="number" class="inputNumerator" id="inputNumerator-1-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-1-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-1-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-1-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-2" value="Black"></td><td><input type="number" class="inputNumerator" id="inputNumerator-2-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-2-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-2-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-2-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-3" value="Hispanic/Latinx"></td><td><input type="number" class="inputNumerator" id="inputNumerator-3-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-3-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-3-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-3-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-4" value="More than one"></td><td><input type="number" class="inputNumerator" id="inputNumerator-4-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-4-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-4-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-4-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-5" value="Unknown"></td><td><input type="number" class="inputNumerator" id="inputNumerator-5-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-5-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-5-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-5-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-6" value="White"></td><td><input type="number" class="inputNumerator" id="inputNumerator-6-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-6-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-6-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-6-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-7" value=""></td><td><input type="number" class="inputNumerator" id="inputNumerator-7-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-7-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-7-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-7-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="inputSubgroup-8" value=""></td><td><input type="number" class="inputNumerator" id="inputNumerator-8-0"></td><td><input type="number" class="inputNumerator" id="inputNumerator-8-1"></td><td><input type="number" class="inputNumerator" id="inputNumerator-8-2"></td><td><input type="number" class="inputNumerator" id="inputNumerator-8-3"></td></tr>
+        </table>
+      </div>
+
+      <!-- Total Count -->
+      <div class="table-wrapper wrapper-total">
+        <div class="section-step">Step 1 — Enter Your Data</div>
+        <h2 id="titleTotalCount">Total Students Enrolled</h2>
+        <h4 id="subtitleTotalCount">How many students were enrolled in each group? (Used as the denominator for all outcomes.)</h4>
+        <table id="denominatorTable">
+          <tr>
+            <th>Race/Ethnicity</th>
+            <th><input type="text" class="yearHeader" id="denominator-year-0" readonly></th>
+            <th><input type="text" class="yearHeader" id="denominator-year-1" readonly></th>
+            <th><input type="text" class="yearHeader" id="denominator-year-2" readonly></th>
+            <th><input type="text" class="yearHeader" id="denominator-year-3" readonly></th>
+          </tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-0-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-0-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-0-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-0-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-1-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-1-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-1-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-1-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-2-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-2-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-2-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-2-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-3"></td><td><input type="number" class="inputDenominator" id="inputDenominator-3-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-3-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-3-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-3-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-4"></td><td><input type="number" class="inputDenominator" id="inputDenominator-4-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-4-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-4-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-4-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-5"></td><td><input type="number" class="inputDenominator" id="inputDenominator-5-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-5-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-5-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-5-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-6"></td><td><input type="number" class="inputDenominator" id="inputDenominator-6-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-6-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-6-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-6-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-7"></td><td><input type="number" class="inputDenominator" id="inputDenominator-7-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-7-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-7-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-7-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="denominatorSubgroup-8"></td><td><input type="number" class="inputDenominator" id="inputDenominator-8-0"></td><td><input type="number" class="inputDenominator" id="inputDenominator-8-1"></td><td><input type="number" class="inputDenominator" id="inputDenominator-8-2"></td><td><input type="number" class="inputDenominator" id="inputDenominator-8-3"></td></tr>
+        </table>
+      </div>
+
+      <!-- Subgroup Success Rates -->
+      <div class="table-wrapper wrapper-success">
+        <div class="section-step section-step-secondary">Reference</div>
+        <div class="sr-title-row">
+          <h2 id="titleSuccessRates">Success Rates by Group</h2>
+          <div class="view-toggle">
+            <button id="srDisplayPct" class="vt-btn vt-active">%</button>
+            <button id="srDisplayCounts" class="vt-btn">#</button>
+          </div>
+        </div>
+        <h4 id="subtitleSuccessRates">Toggle between percentages (%) and raw counts (#).</h4>
+        <table id="successRatesTable">
+          <tr>
+            <th>Race/Ethnicity</th>
+            <th><input type="text" class="yearHeader" id="success-year-0" readonly></th>
+            <th><input type="text" class="yearHeader" id="success-year-1" readonly></th>
+            <th><input type="text" class="yearHeader" id="success-year-2" readonly></th>
+            <th><input type="text" class="yearHeader" id="success-year-3" readonly></th>
+            <th class="sr-total-col">All Years</th>
+          </tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-0" readonly></td><td id="successRate-0-0"></td><td id="successRate-0-1"></td><td id="successRate-0-2"></td><td id="successRate-0-3"></td><td id="successRateTotal-0" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-1" readonly></td><td id="successRate-1-0"></td><td id="successRate-1-1"></td><td id="successRate-1-2"></td><td id="successRate-1-3"></td><td id="successRateTotal-1" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-2" readonly></td><td id="successRate-2-0"></td><td id="successRate-2-1"></td><td id="successRate-2-2"></td><td id="successRate-2-3"></td><td id="successRateTotal-2" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-3" readonly></td><td id="successRate-3-0"></td><td id="successRate-3-1"></td><td id="successRate-3-2"></td><td id="successRate-3-3"></td><td id="successRateTotal-3" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-4" readonly></td><td id="successRate-4-0"></td><td id="successRate-4-1"></td><td id="successRate-4-2"></td><td id="successRate-4-3"></td><td id="successRateTotal-4" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-5" readonly></td><td id="successRate-5-0"></td><td id="successRate-5-1"></td><td id="successRate-5-2"></td><td id="successRate-5-3"></td><td id="successRateTotal-5" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-6" readonly></td><td id="successRate-6-0"></td><td id="successRate-6-1"></td><td id="successRate-6-2"></td><td id="successRate-6-3"></td><td id="successRateTotal-6" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-7" readonly></td><td id="successRate-7-0"></td><td id="successRate-7-1"></td><td id="successRate-7-2"></td><td id="successRate-7-3"></td><td id="successRateTotal-7" class="sr-total-col"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="successSubgroup-8" readonly></td><td id="successRate-8-0"></td><td id="successRate-8-1"></td><td id="successRate-8-2"></td><td id="successRate-8-3"></td><td id="successRateTotal-8" class="sr-total-col"></td></tr>
+          <tr class="sr-total-row">
+            <td class="sr-total-label">All Students</td>
+            <td id="successRateColTotal-0"></td>
+            <td id="successRateColTotal-1"></td>
+            <td id="successRateColTotal-2"></td>
+            <td id="successRateColTotal-3"></td>
+            <td id="successRateGrandTotal" class="sr-total-col"></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- PPG-1 DI Analysis -->
+      <div class="table-wrapper wrapper-ppg1">
+        <div class="ppg-section-header">
+          <div class="section-step section-step-results">Step 2 — Review Results</div>
+          <div class="ppg-title-row">
+            <h2 id="titlePpgAnalysis">Equity Gap Analysis</h2>
+            <div class="view-toggle">
+              <button id="ppgViewSimple"     class="vt-btn vt-active">Simple</button>
+              <button id="ppgViewTechnical"  class="vt-btn">Technical</button>
+            </div>
+          </div>
+          <h4 id="subtitlePpgAnalysis">Comparing each group's success rate to all other students combined.</h4>
+        </div>
+        <!-- Option C banner -->
+        <div id="ppgBanner" class="ppg-banner hidden"></div>
+        <!-- Legend — simple mode -->
+        <div class="legend-row" id="legendSimple">
+          <span class="legend-pill legend-di">⚠ Gap detected</span>
+          <span class="legend-pill legend-watch">↘ Below average</span>
+          <span class="legend-pill legend-good">✓ Above / On track</span>
+          <span class="legend-pill legend-muted">Not enough data</span>
+        </div>
+        <!-- Legend — technical mode (hidden by default) -->
+        <div class="legend-row hidden" id="legendTechnical">
+          <span class="legend-pill legend-di">DI flagged</span>
+          <span class="legend-pill legend-watch">Below peers</span>
+          <span class="legend-pill legend-good">Within threshold or higher</span>
+          <span class="legend-pill legend-muted">Insufficient data</span>
+        </div>
+        <table id="ppg1ValuesTable">
+          <tr>
+            <th>Race/Ethnicity</th>
+            <th><input type="text" class="yearHeader" id="ppg-year-0" readonly></th>
+            <th><input type="text" class="yearHeader" id="ppg-year-1" readonly></th>
+            <th><input type="text" class="yearHeader" id="ppg-year-2" readonly></th>
+            <th><input type="text" class="yearHeader" id="ppg-year-3" readonly></th>
+          </tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-0" readonly></td><td id="ppg1Value-0-0"></td><td id="ppg1Value-0-1"></td><td id="ppg1Value-0-2"></td><td id="ppg1Value-0-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-1" readonly></td><td id="ppg1Value-1-0"></td><td id="ppg1Value-1-1"></td><td id="ppg1Value-1-2"></td><td id="ppg1Value-1-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-2" readonly></td><td id="ppg1Value-2-0"></td><td id="ppg1Value-2-1"></td><td id="ppg1Value-2-2"></td><td id="ppg1Value-2-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-3" readonly></td><td id="ppg1Value-3-0"></td><td id="ppg1Value-3-1"></td><td id="ppg1Value-3-2"></td><td id="ppg1Value-3-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-4" readonly></td><td id="ppg1Value-4-0"></td><td id="ppg1Value-4-1"></td><td id="ppg1Value-4-2"></td><td id="ppg1Value-4-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-5" readonly></td><td id="ppg1Value-5-0"></td><td id="ppg1Value-5-1"></td><td id="ppg1Value-5-2"></td><td id="ppg1Value-5-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-6" readonly></td><td id="ppg1Value-6-0"></td><td id="ppg1Value-6-1"></td><td id="ppg1Value-6-2"></td><td id="ppg1Value-6-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-7" readonly></td><td id="ppg1Value-7-0"></td><td id="ppg1Value-7-1"></td><td id="ppg1Value-7-2"></td><td id="ppg1Value-7-3"></td></tr>
+          <tr><td><input type="text" class="inputSubgroup" id="ppgSubgroup-8" readonly></td><td id="ppg1Value-8-0"></td><td id="ppg1Value-8-1"></td><td id="ppg1Value-8-2"></td><td id="ppg1Value-8-3"></td></tr>
+        </table>
+      </div>
+
+    </div><!-- /.table-container -->
+
+    <!-- ── PPG-1 Chart ───────────────────────────────────────────────────── -->
+    <div class="chart-card" id="chartCard" style="display:none">
+      <h2 id="chartTitle">Equity Gap by Group</h2>
+      <p class="chart-subtitle">Most recent year with data. <span style="color:#c0392b">■</span> Gap detected &nbsp;·&nbsp; <span style="color:#e67e22">■</span> Below average &nbsp;·&nbsp; <span style="color:#2980b9">■</span> On track or above</p>
+      <div class="chart-container">
+        <canvas id="ppg1Chart"></canvas>
+      </div>
+    </div>
+
+    <p class="footnote">
+      Based on the California Community Colleges Chancellor's Office 2022 PPG-1 methodology for
+      positive outcomes. A negative gap is flagged only when the observed PPG-1 is at or below the
+      subgroup margin of error threshold.
+    </p>
+
+    <p class="built-by">Built by Courtney Youngberg &nbsp;·&nbsp; <span id="builtYear"></span></p>
+
+  </main>
+
+  <!-- ── Import modal ──────────────────────────────────────────────────── -->
+  <div id="importOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="importHeading">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="importHeading">Import Data</h2>
+        <button id="importClose" class="modal-close" aria-label="Close">✕</button>
+      </div>
+
+      <!-- Mode tabs -->
+      <div class="import-tabs">
+        <button class="import-tab active" data-mode="upload">📂 Upload CSV / Excel <span class="import-tab-hint">Click or drag-and-drop your file</span></button>
+        <button class="import-tab" data-mode="paste">📋 Paste Data <span class="import-tab-hint">Copy-paste rows from Excel</span></button>
+        <button class="import-tab" data-mode="agg">📊 Pre-aggregated <span class="import-tab-hint">Already-summed tables</span></button>
+      </div>
+
+      <!-- ── Scrollable body ── -->
+      <div class="modal-body">
+
+      <!-- ── Mode: Upload ── -->
+      <div id="importModeUpload">
+        <p class="modal-hint">
+          Upload your student-level export (.csv, .xlsx, or .xls). Columns are auto-detected and
+          <strong>Race/Ethnicity, Gender, and Age</strong> tabs are all populated at once.
+        </p>
+        <div id="rawDropZone" class="drop-zone">
+          <label for="rawFileInput" class="drop-inner">
+            <span class="drop-icon">📂</span>
+            <span class="drop-text"><strong>Click to upload</strong> or drag &amp; drop</span>
+            <span class="drop-hint">.csv &nbsp;·&nbsp; .xlsx &nbsp;·&nbsp; .xls</span>
+          </label>
+          <input type="file" id="rawFileInput" accept=".csv,.xlsx,.xls" class="sr-only">
+          <div id="rawFileStatus" class="file-status hidden"></div>
+        </div>
+      </div>
+
+      <!-- ── Mode: Paste ── -->
+      <div id="importModePaste" class="hidden">
+        <p class="modal-hint">
+          Paste your student-level export below (tab-separated or comma-separated).
+          Include the header row — columns are auto-detected.
+        </p>
+        <div class="modal-field">
+          <textarea id="importRawPaste" rows="8" placeholder="AcademicYear&#9;Gender&#9;RaceEthnicityAncestry&#9;AgeGroup&#9;Success&#9;Enrolled at Census&#10;2023&#9;F&#9;Asian&#9;20 to 24&#9;1&#9;1&#10;2023&#9;M&#9;Hispanic&#9;19 or less&#9;0&#9;1"></textarea>
+        </div>
+      </div>
+
+      <!-- ── Mode: Pre-aggregated ── -->
+      <div id="importModeAgg" class="hidden">
+        <p class="modal-hint">
+          Copy a summary table from Excel and paste below. First column = subgroup name,
+          remaining columns = one value per academic year (left to right). Header row is optional.
+        </p>
+        <div class="modal-fields">
+          <div class="modal-field">
+            <label for="importNumerator"><strong>Outcome Counts</strong> (number of successes)</label>
+            <textarea id="importNumerator" rows="5" placeholder="Am Ind/Ntv Alsk&#9;45&#9;38&#9;52&#9;41&#10;Asian&#9;230&#9;245&#9;260&#9;271&#10;Black&#9;88&#9;95&#9;101&#9;97"></textarea>
+          </div>
+          <div class="modal-field">
+            <label for="importDenominator"><strong>Total Count</strong> (total in subgroup)</label>
+            <textarea id="importDenominator" rows="5" placeholder="Am Ind/Ntv Alsk&#9;80&#9;75&#9;90&#9;85&#10;Asian&#9;350&#9;370&#9;380&#9;395&#10;Black&#9;140&#9;155&#9;160&#9;152"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Column mapping (shared — shown after file upload or paste detect) ── -->
+      <div id="rawColumnMap" class="column-map hidden">
+        <p class="map-label">Columns auto-detected — adjust if needed:</p>
+        <div class="map-grid">
+          <label>Year<select id="mapYear"></select></label>
+          <label>Race/Ethnicity<select id="mapRace"></select></label>
+          <label>Gender<select id="mapGender"></select></label>
+          <label>Age<select id="mapAge"></select></label>
+          <label>Success<select id="mapSuccess"></select></label>
+          <label>Enrolled/Total<select id="mapTotal"></select></label>
+          <label>Course/Section <span class="map-optional">(optional)</span><select id="mapCourse"></select></label>
+          <label>Retention / 2nd Outcome <span class="map-optional">(optional)</span><select id="mapRetention"></select></label>
+          <label>Discipline / Subject <span class="map-optional">(optional)</span><select id="mapDiscipline"></select></label>
+          <label>Education Goal <span class="map-optional">(optional)</span><select id="mapEdGoal"></select></label>
+        </div>
+        <div id="rawPreview" class="raw-preview"></div>
+      </div>
+
+      </div><!-- /.modal-body -->
+
+      <!-- ── Modal footer — action buttons ── -->
+      <div class="modal-footer">
+        <!-- Raw mode actions (upload + paste tabs) -->
+        <div id="rawModeActions">
+          <button id="importDetect" class="btn-secondary">🔍 Detect Columns</button>
+          <button id="importRawApply" class="btn-primary" disabled>✓ Apply — Populate All Tabs</button>
+          <button id="importRawCancel" class="btn-secondary">✕ Cancel</button>
+          <button id="btnDownloadTemplate" class="btn-ghost">⬇ Download Template</button>
+        </div>
+        <!-- Aggregated mode actions -->
+        <div id="aggModeActions" class="hidden">
+          <button id="importApply" class="btn-primary">✓ Apply Import</button>
+          <button id="importCancel" class="btn-secondary">✕ Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Toast notification ────────────────────────────────────────────── -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
