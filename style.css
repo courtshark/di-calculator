@@ -929,7 +929,7 @@ tr.empty-row td input:focus {
 }
 
 .built-by {
-  margin: 1.5rem 0 .5rem;
+  margin: 1.5rem 0 .25rem;
   text-align: center;
   font-size: .78rem;
   font-weight: 600;
@@ -937,6 +937,20 @@ tr.empty-row td input:focus {
   letter-spacing: .04em;
   opacity: .7;
 }
+.built-by-sub {
+  margin: 0 0 .75rem;
+  text-align: center;
+  font-size: .74rem;
+  font-weight: 500;
+  color: var(--muted);
+  opacity: .65;
+}
+.built-by-link {
+  color: var(--orange);
+  font-weight: 700;
+  text-decoration: none;
+}
+.built-by-link:hover { text-decoration: underline; }
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Print styles
